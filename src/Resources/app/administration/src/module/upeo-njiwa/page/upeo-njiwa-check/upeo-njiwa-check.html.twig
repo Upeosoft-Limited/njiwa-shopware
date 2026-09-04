@@ -1,0 +1,81 @@
+{% block upeo_njiwa_check %}
+<sw-page class="upeo-njiwa-check">
+
+    {% block upeo_njiwa_check_smart_bar_header %}
+    <template #smart-bar-header>
+        <h2>{{ $tc('upeo-njiwa.general.title') }}</h2>
+    </template>
+    {% endblock %}
+
+    {% block upeo_njiwa_check_content %}
+    <template #content>
+        <sw-card-view>
+
+            {% block upeo_njiwa_check_scope %}
+            <sw-card :title="$tc('upeo-njiwa.check.scopeTitle')">
+                <p class="upeo-njiwa-check__hint">{{ $tc('upeo-njiwa.check.scopeHint') }}</p>
+
+                <sw-entity-single-select
+                    entity="sales_channel"
+                    :value="salesChannelId"
+                    :label="$tc('upeo-njiwa.check.salesChannel')"
+                    :placeholder="$tc('upeo-njiwa.check.salesChannelPlaceholder')"
+                    show-clearable-button
+                    @change="salesChannelId = $event"
+                    @update:value="salesChannelId = $event"
+                />
+            </sw-card>
+            {% endblock %}
+
+            {% block upeo_njiwa_check_connection %}
+            <sw-card :title="$tc('upeo-njiwa.check.connectionTitle')">
+                <p class="upeo-njiwa-check__hint">{{ $tc('upeo-njiwa.check.connectionHint') }}</p>
+
+                <sw-button
+                    variant="primary"
+                    :isLoading="isTesting"
+                    :disabled="isTesting || isSending"
+                    @click="onTestConnection"
+                >
+                    {{ $tc('upeo-njiwa.check.testConnection') }}
+                </sw-button>
+            </sw-card>
+            {% endblock %}
+
+            {% block upeo_njiwa_check_message %}
+            <sw-card :title="$tc('upeo-njiwa.check.messageTitle')">
+                <p class="upeo-njiwa-check__hint">{{ $tc('upeo-njiwa.check.messageHint') }}</p>
+
+                <sw-text-field
+                    :value="phone"
+                    :label="$tc('upeo-njiwa.check.yourNumber')"
+                    :placeholder="'254712345678'"
+                    @change="phone = $event"
+                    @update:value="phone = $event"
+                />
+
+                <sw-button
+                    :isLoading="isSending"
+                    :disabled="isSending || isTesting || !phone"
+                    @click="onSendTestMessage"
+                >
+                    {{ $tc('upeo-njiwa.check.sendTestMessage') }}
+                </sw-button>
+            </sw-card>
+            {% endblock %}
+
+            {% block upeo_njiwa_check_result %}
+            <sw-card v-if="result" :title="$tc('upeo-njiwa.check.resultTitle')">
+                <div
+                    class="upeo-njiwa-check__result"
+                    :class="{ 'upeo-njiwa-check__result--error': resultIsError }"
+                >{{ result }}</div>
+            </sw-card>
+            {% endblock %}
+
+        </sw-card-view>
+    </template>
+    {% endblock %}
+
+</sw-page>
+{% endblock %}

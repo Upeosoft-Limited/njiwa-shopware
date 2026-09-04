@@ -1,0 +1,16 @@
+// The answer from either check is written by the endpoint and can run to
+// several lines, so it is shown as it came rather than folded into one.
+.upeo-njiwa-check {
+    &__hint {
+        margin-bottom: 16px;
+    }
+
+    &__result {
+        white-space: pre-line;
+        word-break: break-word;
+
+        &--error {
+            color: #de294c;
+        }
+    }
+}

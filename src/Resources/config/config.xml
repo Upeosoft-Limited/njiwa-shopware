@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Shopware renders this file as the plugin's settings form and stores what is
+    typed into it in system_config, per sales channel. Every setting lives
+    here, because this is already the place a merchant configuring a shop is
+    standing. The plugin's own screen under Settings holds only the two checks,
+    which need somewhere to print an answer and so could not be fields on this
+    form.
+
+    Every field carries its own help text. A setting whose meaning has to be
+    looked up somewhere else is a setting people get wrong.
+
+    The default wording below is repeated in src/Service/Templates.php. The two
+    must stay identical: this one fills the box a merchant looks at, and that
+    one fills the gap for a shop that has never saved this form. tests/
+    TemplatesTest.php checks that they have not drifted apart.
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/platform/trunk/src/Core/System/SystemConfig/Schema/config.xsd">
+
+    <card>
+        <title>Connection</title>
+        <input-field type="bool">
+            <name>enabled</name>
+            <label>Send WhatsApp messages</label>
+            <helpText>The master switch. Turn it off and this plugin stops sending anything at all, without losing your key, your numbers or your wording. Orders carry on exactly as before.</helpText>
+            <defaultValue>true</defaultValue>
+        </input-field>
+        <input-field type="password">
+            <name>apiKey</name>
+            <label>API key</label>
+            <placeholder>sk_test_...</placeholder>
+            <helpText>Create one in the Njiwa console under API keys. A key beginning sk_test_ checks and stores every message and delivers nothing, which is what you want while you set this up. A key beginning sk_live_ sends to real phones and costs real money. The console shows a key once and keeps only its fingerprint, so a lost key is replaced rather than recovered. Shopware stores it in the same table as every other setting, which is not encrypted, so treat a database backup as something that contains this key.</helpText>
+        </input-field>
+        <input-field type="text">
+            <name>baseUrl</name>
+            <label>Njiwa address</label>
+            <helpText>Leave this exactly as it is. It exists for shops that have been given their own Njiwa address, and changing it otherwise stops messages reaching anybody.</helpText>
+            <defaultValue>https://njiwa.upeo.ai</defaultValue>
+        </input-field>
+        <input-field type="text">
+            <name>sendFrom</name>
+            <label>Send from</label>
+            <placeholder>254712345678</placeholder>
+            <helpText>Which of your linked WhatsApp numbers these messages come from. Digits only, in full international form, such as 254712345678, with no leading zero: unlike a recipient, the sending number is never read against anybody's country. Leave it empty to use the number marked default in the console, which is the right answer if you have one number.</helpText>
+        </input-field>
+    </card>
+
+    <card>
+        <title>Messages to your customers</title>
+        <input-field type="bool">
+            <name>placedEnabled</name>
+            <label>Order placed, payment not in yet</label>
+            <helpText>Sent the moment the order is placed, before any payment has been confirmed. It is the one to use for bank transfer, invoice and cash on delivery, where the order is real long before the money is.</helpText>
+            <defaultValue>false</defaultValue>
+        </input-field>
+        <input-field type="textarea">
+            <name>placedTemplate</name>
+            <label>Order placed, payment not in yet: wording</label>
+            <helpText>Anything in braces is filled in from the order: {first_name}, {last_name}, {customer_name}, {order_number}, {order_total}, {order_date}, {order_status}, {payment_method}, {items}, {item_count}, {shop_name}, {order_url}, {admin_url}. A placeholder that does not exist is removed before sending rather than posted to a customer. Clear this box and nothing is sent, whatever the switch above says.</helpText>
+            <defaultValue>Hi {first_name}, we have your order {order_number} for {order_total}. We will let you know the moment your payment comes through.
+
+{shop_name}</defaultValue>
+        </input-field>
+        <input-field type="bool">
+            <name>paidEnabled</name>
+            <label>Payment received</label>
+            <helpText>Sent when a payment on the order moves to paid. The one most shops want. A partly paid order is not this: telling somebody their payment came through when half of it did causes more work than it saves.</helpText>
+            <defaultValue>false</defaultValue>
+        </input-field>
+        <input-field type="textarea">
+            <name>paidTemplate</name>
+            <label>Payment received: wording</label>
+            <helpText>Anything in braces is filled in from the order: {first_name}, {last_name}, {customer_name}, {order_number}, {order_total}, {order_date}, {order_status}, {payment_method}, {items}, {item_count}, {shop_name}, {order_url}, {admin_url}. A placeholder that does not exist is removed before sending rather than posted to a customer. Clear this box and nothing is sent, whatever the switch above says.</helpText>
+            <defaultValue>Hi {first_name}, thank you. Your payment for order {order_number} came through and we are getting it ready.
+
+{items}
+
+Total {order_total}
+{shop_name}</defaultValue>
+        </input-field>
+        <input-field type="bool">
+            <name>shippedEnabled</name>
+            <label>Order shipped</label>
+            <helpText>Sent when a delivery on the order moves to shipped, which is the moment the customer most wants to hear from you. A partly shipped order is not this.</helpText>
+            <defaultValue>false</defaultValue>
+        </input-field>
+        <input-field type="textarea">
+            <name>shippedTemplate</name>
+            <label>Order shipped: wording</label>
+            <helpText>Anything in braces is filled in from the order: {first_name}, {last_name}, {customer_name}, {order_number}, {order_total}, {order_date}, {order_status}, {payment_method}, {items}, {item_count}, {shop_name}, {order_url}, {admin_url}. A placeholder that does not exist is removed before sending rather than posted to a customer. Clear this box and nothing is sent, whatever the switch above says.</helpText>
+            <defaultValue>Hi {first_name}, order {order_number} is on its way to you. Thank you for shopping with {shop_name}.</defaultValue>
+        </input-field>
+        <input-field type="bool">
+            <name>cancelledEnabled</name>
+            <label>Order cancelled</label>
+            <helpText>Sent when the order itself is cancelled, not when one of its payments or deliveries is. Worth sending: a cancellation nobody explained is what turns into a phone call.</helpText>
+            <defaultValue>false</defaultValue>
+        </input-field>
+        <input-field type="textarea">
+            <name>cancelledTemplate</name>
+            <label>Order cancelled: wording</label>
+            <helpText>Anything in braces is filled in from the order: {first_name}, {last_name}, {customer_name}, {order_number}, {order_total}, {order_date}, {order_status}, {payment_method}, {items}, {item_count}, {shop_name}, {order_url}, {admin_url}. A placeholder that does not exist is removed before sending rather than posted to a customer. Clear this box and nothing is sent, whatever the switch above says.</helpText>
+            <defaultValue>Hi {first_name}, order {order_number} has been cancelled. If that was not you, reply to this message and we will look into it.
+
+{shop_name}</defaultValue>
+        </input-field>
+        <input-field type="bool">
+            <name>refundedEnabled</name>
+            <label>Order refunded</label>
+            <helpText>Sent when a payment on the order moves to refunded. Saying the money is on its way stops the "where is my refund" message before it is sent.</helpText>
+            <defaultValue>false</defaultValue>
+        </input-field>
+        <input-field type="textarea">
+            <name>refundedTemplate</name>
+            <label>Order refunded: wording</label>
+            <helpText>Anything in braces is filled in from the order: {first_name}, {last_name}, {customer_name}, {order_number}, {order_total}, {order_date}, {order_status}, {payment_method}, {items}, {item_count}, {shop_name}, {order_url}, {admin_url}. A placeholder that does not exist is removed before sending rather than posted to a customer. Clear this box and nothing is sent, whatever the switch above says.</helpText>
+            <defaultValue>Hi {first_name}, we have refunded {order_total} for order {order_number}. Banks take a few days to show it.
+
+{shop_name}</defaultValue>
+        </input-field>
+    </card>
+
+    <card>
+        <title>The message to you</title>
+        <input-field type="bool">
+            <name>alertEnabled</name>
+            <label>Tell me about new orders</label>
+            <helpText>Send a WhatsApp message to your own number when an order comes in. It goes once per order, the moment the order is placed, which in Shopware is the first moment an order is real: what exists before that is a cart, and a cart is somebody who reached the payment page and may never come back.</helpText>
+            <defaultValue>false</defaultValue>
+        </input-field>
+        <input-field type="text">
+            <name>alertNumbers</name>
+            <label>Your WhatsApp numbers</label>
+            <placeholder>254712345678, 254733000111</placeholder>
+            <helpText>Where that message goes. Digits only, in full international form, separated by commas if there are several. Everybody listed gets their own copy.</helpText>
+        </input-field>
+        <input-field type="textarea">
+            <name>alertTemplate</name>
+            <label>Your wording</label>
+            <helpText>Anything in braces is filled in from the order: {first_name}, {last_name}, {customer_name}, {order_number}, {order_total}, {order_date}, {order_status}, {payment_method}, {items}, {item_count}, {shop_name}, {order_url}, {admin_url}. A placeholder that does not exist is removed before sending rather than posted to a customer. Clear this box and nothing is sent, whatever the switch above says. {admin_url} is worth having here: it opens the order in the administration straight from your phone.</helpText>
+            <defaultValue>New order {order_number} on {shop_name}.
+
+{customer_name}
+{item_count} item(s), {order_total}
+Paid by {payment_method}
+
+{admin_url}</defaultValue>
+        </input-field>
+    </card>
+
+</config>

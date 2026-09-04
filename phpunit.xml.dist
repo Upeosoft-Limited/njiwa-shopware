@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    The whole suite is the wording and the phone numbers, which are the two
+    things a merchant edits and the two things that break quietly. It needs no
+    Shopware, no kernel and no database.
+
+    Run it either with a composer install in this folder:
+
+        vendor/bin/phpunit
+
+    or with the PHPUnit the shop already has, from the shop's own root:
+
+        vendor/bin/phpunit -c custom/plugins/UpeoNjiwa/phpunit.xml.dist
+-->
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         bootstrap="tests/bootstrap.php"
+         colors="true">
+    <testsuites>
+        <testsuite name="Njiwa for Shopware">
+            <directory>tests</directory>
+        </testsuite>
+    </testsuites>
+</phpunit>

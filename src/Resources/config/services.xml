@@ -1,0 +1,117 @@
+<?xml version="1.0" ?>
+<!--
+    Everything is wired by hand. Autowiring is switched off on purpose: a
+    plugin that guesses its own dependencies is a plugin that silently picks up
+    a different service after an upgrade, and this one would rather fail to
+    build than send a message from the wrong place.
+
+    Autoconfiguration is off for the same reason. Every tag that matters — the
+    subscribers, the queue handler, the controller — is written out below, so
+    there is exactly one place to look to see what this plugin has hooked into,
+    and no chance of a handler being registered twice and a customer being
+    messaged twice with it.
+-->
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+        <defaults autowire="false" autoconfigure="false" public="false"/>
+
+        <!--
+            This plugin's lines go to the shop's own log under a channel of
+            their own, so "did the message go?" is answered by grepping for
+            njiwa rather than by reading everything Shopware has ever written.
+            The record that outlives the log is the upeo_njiwa_message table.
+
+            The channel is arranged the Monolog way: every service that wants
+            it is given the ordinary "logger" service and tagged
+            monolog.logger, and MonologBundle swaps in the njiwa channel while
+            the container is built. The obvious alternative,
+            Shopware\Core\Framework\Log\LoggerFactory::createRotating, exists
+            in 6.5 and was removed in 6.6, and a container that references a
+            service which is not there does not merely lose the log: the plugin
+            cannot be activated, and a shop that already has it recorded as
+            active cannot build its cache at all, which is a 500 on the
+            storefront until somebody removes the plugin by hand. Both versions
+            are supported here, so only what both have is used.
+        -->
+
+        <service id="Upeo\Njiwa\Service\Config">
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+        </service>
+
+        <service id="Upeo\Njiwa\Service\Numbers"/>
+
+        <service id="Upeo\Njiwa\Service\Templates">
+            <argument type="service" id="logger"/>
+            <tag name="monolog.logger" channel="njiwa"/>
+        </service>
+
+        <service id="Upeo\Njiwa\Service\OrderValues">
+            <argument type="service" id="Shopware\Core\System\Currency\CurrencyFormatter"/>
+            <argument type="service" id="Upeo\Njiwa\Service\Numbers"/>
+        </service>
+
+        <service id="Upeo\Njiwa\Service\NjiwaClient">
+            <argument type="service" id="http_client"/>
+            <argument type="service" id="Upeo\Njiwa\Service\Config"/>
+        </service>
+
+        <service id="Upeo\Njiwa\Service\MessageLog">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+        </service>
+
+        <service id="Upeo\Njiwa\Service\Notifier">
+            <argument type="service" id="Upeo\Njiwa\Service\Config"/>
+            <argument type="service" id="messenger.default_bus"/>
+            <argument type="service" id="logger"/>
+            <tag name="monolog.logger" channel="njiwa"/>
+        </service>
+
+        <service id="Upeo\Njiwa\Subscriber\OrderPlacedSubscriber">
+            <argument type="service" id="Upeo\Njiwa\Service\Notifier"/>
+            <argument type="service" id="logger"/>
+            <tag name="kernel.event_subscriber"/>
+            <tag name="monolog.logger" channel="njiwa"/>
+        </service>
+
+        <service id="Upeo\Njiwa\Subscriber\StateChangeSubscriber">
+            <argument type="service" id="Upeo\Njiwa\Service\Notifier"/>
+            <argument type="service" id="order.repository"/>
+            <argument type="service" id="order_transaction.repository"/>
+            <argument type="service" id="order_delivery.repository"/>
+            <argument type="service" id="logger"/>
+            <tag name="kernel.event_subscriber"/>
+            <tag name="monolog.logger" channel="njiwa"/>
+        </service>
+
+        <!--
+            The tag is what puts this on the queue worker rather than on the
+            request. Symfony reads the message class it handles from the type
+            hint on __invoke(), so there is nothing to keep in step by hand.
+        -->
+        <service id="Upeo\Njiwa\MessageQueue\SendOrderMessageHandler">
+            <argument type="service" id="order.repository"/>
+            <argument type="service" id="Upeo\Njiwa\Service\Config"/>
+            <argument type="service" id="Upeo\Njiwa\Service\Templates"/>
+            <argument type="service" id="Upeo\Njiwa\Service\OrderValues"/>
+            <argument type="service" id="Upeo\Njiwa\Service\Numbers"/>
+            <argument type="service" id="Upeo\Njiwa\Service\NjiwaClient"/>
+            <argument type="service" id="Upeo\Njiwa\Service\MessageLog"/>
+            <argument type="service" id="logger"/>
+            <tag name="messenger.message_handler"/>
+            <tag name="monolog.logger" channel="njiwa"/>
+        </service>
+
+        <service id="Upeo\Njiwa\Controller\NjiwaController" public="true">
+            <argument type="service" id="Upeo\Njiwa\Service\NjiwaClient"/>
+            <argument type="service" id="Upeo\Njiwa\Service\Config"/>
+            <argument type="service" id="Upeo\Njiwa\Service\Numbers"/>
+            <argument type="service" id="Upeo\Njiwa\Service\MessageLog"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+        </service>
+    </services>
+</container>

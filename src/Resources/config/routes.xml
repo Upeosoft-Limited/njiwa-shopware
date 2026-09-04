@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+    The two checks live under /api/_action, which is the administration's own
+    namespace for "do this" endpoints rather than "read this entity". Being
+    there is what puts them behind the administration session; the _acl on each
+    route is what decides who may then use them.
+-->
+<routes xmlns="http://symfony.com/schema/routing"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://symfony.com/schema/routing https://symfony.com/schema/routing/routing-1.0.xsd">
+
+    <!--
+        The type is "attribute", and it has to stay that way. Shopware 6.5.8.8
+        requires symfony/routing ~6.4 and 6.6.10.0 requires ~7.2. Routing 6.4
+        answers to both "annotation" and "attribute"; routing 7.2 answers only
+        to "attribute" and returns false for anything else. So "annotation"
+        looks harmless on 6.5 and leaves 6.6 with no loader for this import,
+        which fails the route cache build and takes the two check endpoints
+        with it.
+    -->
+    <import resource="../../Controller" type="attribute"/>
+
+</routes>

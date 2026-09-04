@@ -1,0 +1,23 @@
+{
+  "upeo-njiwa": {
+    "general": {
+      "title": "Njiwa WhatsApp",
+      "description": "Check that this shop can reach your customers on WhatsApp."
+    },
+    "check": {
+      "scopeTitle": "Which settings to check",
+      "scopeHint": "Leave this empty to check the shop-wide settings, which is what a shop with one sales channel wants. Pick a sales channel to check the key and the sending number saved for that channel instead.",
+      "salesChannel": "Sales channel",
+      "salesChannelPlaceholder": "All sales channels",
+      "connectionTitle": "Test connection",
+      "connectionHint": "Lists the WhatsApp numbers your Njiwa account really has and says whether the sending number you chose is one of them. It sends nothing.",
+      "testConnection": "Test connection",
+      "messageTitle": "Send test message",
+      "messageHint": "One fixed message to one number you name. Digits only, in full international form, such as 254712345678. On a live key this is a real message that costs real money, so it is limited to five a minute.",
+      "yourNumber": "Your WhatsApp number",
+      "sendTestMessage": "Send test message",
+      "resultTitle": "What came back",
+      "noAnswer": "The request went through but came back with nothing to say. Check var/log for lines from the njiwa channel."
+    }
+  }
+}
